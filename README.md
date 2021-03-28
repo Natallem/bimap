@@ -6,6 +6,6 @@ Bimap is parameterized by 2 types (left and right) and 2 comparators that determ
 The behavior of bimap iterators is the same as map iterators and allow traverse elements in both left and right side in the order specified by the passed comparators.
 
 ## Performance 
- * Adding, deleting, searching elements of both left and right types in O(logn)
+ * Inserting, deleting, searching elements of both left and right types in O(logn)
  * Minimum number of memory allocations (one memory allocation for one bimap element)
  * No memory allocations in empty bimap
