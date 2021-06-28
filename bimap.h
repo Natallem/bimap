@@ -244,21 +244,26 @@ public:
     return common_insert(std::forward<left_t>(left),
                          std::forward<right_t>(right));
   }
-  // Удаляет элемент и соответствующий ему парный.
-  // erase невалидного итератора неопределен.
-  // erase(end_left()) и erase(end_right()) неопределены.
-  // Пусть it ссылается на некоторый элемент e.
-  // erase инвалидирует все итераторы ссылающиеся на e и на элемент парный к e.
+
+  /*
+   * Delete left element and it's paired element.
+   * erase of an invalid iterator is undefined.
+   * erase(end_left()) and erase(end_right()) is undefined.
+   * Invalidates all iterators referred to element and it's pair, that 'it' pointed at
+   */
   left_iterator erase_left(left_iterator it) noexcept {
     return common_erase(it, left_tree, right_tree);
   }
 
   right_iterator erase_right(right_iterator it) noexcept {
-    return common_erase(it, right_tree, left_tree);
+      return common_erase(it, right_tree, left_tree);
   }
-
-  //  Аналогично erase, но по ключу, удаляет элемент если он присутствует,
-  //  иначе не делает ничего Возвращает была ли пара удалена
+  /*
+   * Same as 'erase', but uses key.
+   * If such element exists, it will be deleted.
+   * If it doesn't, do nothing.
+   * Returns if pair of elements was erased.
+   */
   bool erase_left(left_t const &left) noexcept {
     return common_erase_bool(left, left_tree, right_tree);
   }
@@ -267,8 +272,10 @@ public:
     return common_erase_bool(right, right_tree, left_tree);
   }
 
-  // erase от ренжа, удаляет [first, last), возвращает итератор на последний
-  // элемент за удаленной последовательностью
+  /*
+   * Erase range of elements [first, last).
+   * Returns iterator to the last element.
+   */
   left_iterator erase_left(left_iterator first, left_iterator last) noexcept {
     return common_erase_interval(first, last, left_tree, right_tree);
   }
@@ -278,7 +285,7 @@ public:
     return common_erase_interval(first, last, right_tree, left_tree);
   }
 
-  // Возвращает итератор по элементу. Если не найден - соответствующий end()
+  // Returns iterator to element. If such element doesn't exists, returns end()
   left_iterator find_left(left_t const &left) const noexcept {
     return left_iterator(this, left_tree.find_value(left));
   }
@@ -286,8 +293,10 @@ public:
     return right_iterator(this, right_tree.find_value(right));
   }
 
-  // Возвращает противоположный элемент по элементу
-  // Если элемента не существует -- бросает std::out_of_range
+  /*
+   * Returns iterator to paired element.
+   * If element by given key doesn't exists, throws std::out_of_range.
+   */
   right_t const &at_left(left_t const &key) const {
     return common_at<left_t, left_tree_t, left_iterator>(key, left_tree);
   }
@@ -296,11 +305,13 @@ public:
     return common_at<right_t, right_tree_t, right_iterator>(key, right_tree);
   }
 
-  // Возвращает противоположный элемент по элементу
-  // Если элемента не существует, добавляет его в bimap и на противоположную
-  // сторону кладет дефолтный элемент, ссылку на который и возвращает
-  // Если дефолтный элемент уже лежит в противоположной паре - должен поменять
-  // соответствующий ему элемент на запрашиваемый (смотри тесты)
+  /*
+   * Returns paired element by given key value.
+   * If such key doesn't exists, puts it in bimap with
+   * paired element with default value and returns reference
+   * to this element. In case default paired element is already
+   * in bimap, change it's pair to given key.
+   */
   right_t const &at_left_or_default(left_t const &key) {
     left_node_t *ptr = left_tree.find_value(key);
     if (ptr == nullptr) {
@@ -329,9 +340,10 @@ public:
     return flip_nodes_types<left_node_t, right_node_t>(ptr)->value;
   }
 
-  // lower и upper bound'ы по каждой стороне
-  // Возвращают итераторы на соответствующие элементы
-  // Смотри std::lower_bound, std::upper_bound.
+  /*
+   * Return iterator for lower or upper bound element.
+   * Same as std::lower_bound
+   */
   left_iterator lower_bound_left(const left_t &left) const noexcept {
     return left_iterator(this, left_tree.find_grater_or_equal(left));
   }
